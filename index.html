@@ -1,99 +1,389 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>제로 콜라 최저가 검색</title>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Segoe UI', sans-serif; background: #f0f4f8; color: #333; }
-    header { background: #1a1a2e; color: #fff; padding: 20px; text-align: center; }
-    header h1 { font-size: 1.6rem; }
-    header p { font-size: 0.9rem; opacity: 0.7; margin-top: 4px; }
-    .search-bar { display: flex; justify-content: center; padding: 24px 16px; gap: 8px; }
-    .search-bar input { width: 100%; max-width: 420px; padding: 12px 16px; border: 1px solid #ccc; border-radius: 8px; font-size: 1rem; }
-    .search-bar button { padding: 12px 24px; background: #e84393; color: #fff; border: none; border-radius: 8px; font-size: 1rem; cursor: pointer; }
-    .search-bar button:hover { background: #c2185b; }
-    #status { text-align: center; color: #666; margin-bottom: 12px; font-size: 0.9rem; }
-    #error { text-align: center; color: #c62828; background: #ffebee; border: 1px solid #ef9a9a; border-radius: 8px; padding: 12px 16px; margin: 0 16px 16px; display: none; }
-    #results { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; padding: 0 16px 32px; max-width: 1100px; margin: 0 auto; }
-    .card { background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08); transition: transform .15s; }
-    .card:hover { transform: translateY(-3px); }
-    .card img { width: 100%; height: 200px; object-fit: cover; }
-    .card-body { padding: 12px; }
-    .card-title { font-size: 0.85rem; line-height: 1.4; margin-bottom: 8px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-    .card-price { font-size: 1.2rem; font-weight: 700; color: #e84393; }
-    .card-mall { font-size: 0.75rem; color: #999; margin-top: 4px; }
-    .card-link { display: block; margin-top: 10px; text-align: center; padding: 8px; background: #1a1a2e; color: #fff; border-radius: 6px; text-decoration: none; font-size: 0.85rem; }
-    .card-link:hover { background: #e84393; }
-  </style>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>COLABOT - 제로 콜라 최저가 비교</title>
+<meta name="description" content="쿠팡, G마켓, 11번가 등 주요 쇼핑몰의 제로 콜라 가격을 실시간으로 비교합니다."/>
+<meta name="robots" content="index,follow"/>
+<meta property="og:title" content="COLABOT - 제로 콜라 최저가 비교"/>
+<meta property="og:description" content="주요 쇼핑몰 제로 콜라 실시간 가격 비교. 조건부 할인 자동 필터링."/>
+<meta property="og:type" content="website"/>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23e63535'/><text x='50' y='68' text-anchor='middle' font-size='48' font-weight='900' fill='white' font-family='sans-serif'>CB</text></svg>"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#07070a;--s1:#0c0c10;--s2:#101015;--b1:#17171c;--b2:#222229;
+  --t0:#f0f0f2;--t1:#c8c8ce;--t2:#8a8a96;--t3:#55555f;--t4:#35353d;--t5:#222229;
+  --red:#e63535;--grn:#4ade80;--ylw:#e2b340;--pur:#a78bfa;
+  --hdr:rgba(7,7,10,0.92);--inp:#0c0c10;--tag:#101015;--xpan:#0a0a0d;--scr:#17171c;
+  --cHov:#101015;
+  --bBg:rgba(74,222,128,0.02);--bBd:rgba(74,222,128,0.08);
+  --bHBg:rgba(74,222,128,0.035);--bHBd:rgba(74,222,128,0.2);
+  --mallBg:rgba(255,255,255,0.02);--bestBg:rgba(74,222,128,0.06);--savBg:rgba(226,179,64,0.04)
+}
+.light{
+  --bg:#f7f7f9;--s1:#fff;--s2:#f1f1f4;--b1:#e2e2e6;--b2:#d0d0d6;
+  --t0:#111115;--t1:#2a2a32;--t2:#6b6b78;--t3:#8a8a96;--t4:#b0b0ba;--t5:#d4d4da;
+  --red:#dc2626;--grn:#16a34a;--ylw:#b8860b;--pur:#7c3aed;
+  --hdr:rgba(247,247,249,0.92);--inp:#fff;--tag:#eeeef2;--xpan:#fafafc;--scr:#d4d4da;
+  --cHov:#f2f2f5;
+  --bBg:rgba(22,163,74,0.03);--bBd:rgba(22,163,74,0.12);
+  --bHBg:rgba(22,163,74,0.06);--bHBd:rgba(22,163,74,0.25);
+  --mallBg:rgba(0,0,0,0.03);--bestBg:rgba(22,163,74,0.08);--savBg:rgba(184,134,11,0.06)
+}
+body{min-height:100vh;background:var(--bg);color:var(--t1);font-family:'JetBrains Mono','SF Mono',monospace;transition:background .3s,color .3s}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--scr);border-radius:4px}
+::selection{background:rgba(74,222,128,.15);color:var(--t0)}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+header{border-bottom:1px solid var(--b1);background:var(--hdr);backdrop-filter:blur(20px);position:sticky;top:0;z-index:50;transition:background .3s,border-color .3s}
+.w{max-width:800px;margin:0 auto;padding:12px 20px}
+.tr{display:flex;align-items:center;justify-content:space-between;margin-bottom:11px}
+.la{display:flex;align-items:center;gap:8px}
+.lm{width:28px;height:28px;border-radius:6px;background:var(--red);display:flex;align-items:center;justify-content:center;font-family:'DM Sans',sans-serif;font-size:10px;font-weight:800;color:#fff}
+.lt{font-family:'DM Sans',sans-serif;font-weight:800;font-size:15px;color:var(--t0);letter-spacing:-.5px;line-height:1.1;transition:color .3s}
+.lt span{color:var(--red)}
+.ls{font-size:8px;color:var(--t4);letter-spacing:2px;text-transform:uppercase;line-height:1;transition:color .3s}
+.hr{display:flex;align-items:center;gap:6px}
+.ub{font-size:9px;color:var(--t4);display:flex;align-items:center;gap:5px}
+.ud{width:4px;height:4px;border-radius:50%;background:var(--grn);box-shadow:0 0 6px var(--grn)}
+.tb{height:28px;padding:0 9px;border-radius:6px;background:var(--s1);border:1px solid var(--b1);cursor:pointer;font-size:10px;font-weight:600;color:var(--t2);font-family:'DM Sans',sans-serif;transition:all .2s;display:flex;align-items:center;justify-content:center}
+.tb.sq{width:28px;padding:0}
+.sr{display:flex;gap:6px}
+.sb{flex:1;display:flex;align-items:center;background:var(--inp);border:1px solid var(--b1);border-radius:7px;transition:border-color .2s}
+.sb:focus-within{border-color:var(--b2)}
+.sb svg{margin-left:11px;flex-shrink:0}
+.sb input{flex:1;padding:9px 10px;background:transparent;border:none;color:var(--t1);font-size:11px;font-family:inherit;outline:none;transition:color .3s}
+.sb .cl{background:none;border:none;color:var(--t4);cursor:pointer;padding:0 10px 0 0;font-size:12px;line-height:1;font-family:inherit;display:none}
+.go{padding:0 16px;background:var(--red);color:#fff;border:none;border-radius:7px;font-size:11px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:opacity .15s}
+.go:disabled{opacity:.5;cursor:wait}
+.ps{display:flex;gap:4px;margin-top:7px;overflow-x:auto;padding-bottom:1px}
+.pb{padding:4px 10px;background:transparent;border:1px solid var(--b1);border-radius:5px;color:var(--t3);font-size:9px;cursor:pointer;font-family:inherit;white-space:nowrap;transition:all .12s;flex-shrink:0}
+.pb.ac{background:var(--s2);border-color:var(--b2);color:var(--t1)}
+main{max-width:800px;margin:0 auto;padding:16px 20px 80px}
+.st{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:16px;animation:fadeIn .35s ease}
+.sc{background:var(--s1);border:1px solid var(--b1);border-radius:8px;padding:10px 12px;transition:all .3s}
+.sl{font-size:8px;color:var(--t4);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:4px}
+.sv{font-size:14px;font-weight:700;font-family:'DM Sans',sans-serif;letter-spacing:-.3px}
+.ss{font-size:8px;color:var(--t5);margin-top:1px}
+.tl{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:6px}
+.tll{display:flex;align-items:center;gap:5px}
+.fb{display:flex;align-items:center;gap:4px;padding:4px 9px;border-radius:5px;font-size:9px;cursor:pointer;font-family:inherit;border:1px solid}
+.fb.on{background:rgba(74,222,128,.04);border-color:rgba(74,222,128,.1);color:var(--grn)}
+.fb.off{background:rgba(239,68,68,.04);border-color:rgba(239,68,68,.1);color:#ef4444}
+.fd{width:4px;height:4px;border-radius:50%}
+.fb.on .fd{background:var(--grn)}.fb.off .fd{background:#ef4444}
+.xb{padding:4px 9px;border-radius:5px;border:1px solid var(--b1);color:var(--pur);font-size:9px;cursor:pointer;font-family:inherit;background:transparent}
+.xb.ac{background:rgba(167,139,250,.04)}
+.sg{display:flex;gap:2px}
+.so{padding:3px 8px;border-radius:4px;background:transparent;border:1px solid transparent;color:var(--t3);font-size:9px;cursor:pointer;font-family:inherit;transition:all .12s}
+.so.ac{background:var(--s2);border-color:var(--b2);color:var(--t1)}
+.ld{text-align:center;padding:60px 0}
+.sp{width:24px;height:24px;border:2px solid var(--b1);border-top-color:var(--red);border-radius:50%;animation:spin .65s linear infinite;margin:0 auto 10px}
+.ld p{color:var(--t4);font-size:11px}
+.rs{display:flex;flex-direction:column;gap:4px}
+.rc{display:grid;grid-template-columns:30px 1fr auto;align-items:center;gap:12px;padding:12px 15px;text-decoration:none;color:inherit;background:var(--s1);border:1px solid var(--b1);border-radius:8px;cursor:pointer;transition:all .12s}
+.rc:hover{border-color:var(--b2);background:var(--cHov)}
+.rc.bt{background:var(--bBg);border-color:var(--bBd)}
+.rc.bt:hover{background:var(--bHBg);border-color:var(--bHBd)}
+.rk{font-size:11px;font-weight:700;text-align:center;font-family:'DM Sans',sans-serif}
+.inf{min-width:0}
+.bg{display:flex;align-items:center;gap:5px;margin-bottom:2px;flex-wrap:wrap}
+.bd{padding:1px 6px;border-radius:3px;font-size:8px;font-weight:500}
+.bm{background:var(--mallBg);border:1px solid var(--b1);color:var(--t3)}
+.bb{background:var(--bestBg);color:var(--grn);font-weight:600}
+.bs{background:var(--savBg);color:var(--ylw)}
+.nm{font-size:11px;color:var(--t1);font-family:'DM Sans',sans-serif;font-weight:400;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;transition:color .3s}
+.mt{font-size:8px;color:var(--t5);margin-top:1px}
+.pc{text-align:right;flex-shrink:0}
+.pr{font-weight:700;font-family:'DM Sans',sans-serif;letter-spacing:-.5px;transition:color .3s}
+.pr .u{font-size:9px;font-weight:400;color:var(--t4)}
+.ep{margin-top:14px}
+.et{font-size:10px;font-weight:600;color:var(--pur);margin-bottom:7px;display:flex;align-items:center;gap:5px;font-family:'DM Sans',sans-serif}
+.ed{width:5px;height:5px;border-radius:50%;background:var(--pur)}
+.el{background:var(--xpan);border:1px solid var(--b1);border-radius:8px;overflow:hidden;transition:all .3s}
+.er{display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:10px;padding:8px 12px;opacity:.4}
+.er+.er{border-top:1px solid var(--s1)}
+.en{font-size:10px;color:var(--t3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ew{padding:1px 6px;border-radius:3px;background:rgba(167,139,250,.05);border:1px solid rgba(167,139,250,.07);font-size:8px;color:var(--pur);white-space:nowrap}
+.ep2{font-size:10px;color:var(--t5);font-family:'DM Sans',sans-serif}
+.fr{margin-top:20px;padding:14px 16px;background:var(--s1);border:1px solid var(--b1);border-radius:8px;transition:all .3s}
+.fr h3{font-size:10px;font-weight:600;color:var(--t3);margin-bottom:8px;font-family:'DM Sans',sans-serif}
+.ft{display:flex;flex-wrap:wrap;gap:4px}
+.fg{padding:3px 8px;border-radius:4px;background:var(--tag);border:1px solid var(--b1);font-size:9px;color:var(--t3);transition:all .3s}
+.fdc{font-size:8px;color:var(--t5);line-height:1.5;margin:6px 0 0;transition:color .3s}
+.err{text-align:center;padding:40px 20px;color:var(--t3);font-size:11px;line-height:1.6}
+.err b{color:var(--red);font-weight:600}
+</style>
 </head>
 <body>
-  <header>
-    <h1>🥤 제로 콜라 최저가 검색</h1>
-    <p>네이버 쇼핑 기준 실시간 가격 비교</p>
-  </header>
-
-  <div class="search-bar">
-    <input type="text" id="query" value="제로콜라" placeholder="검색어 입력">
-    <button onclick="doSearch()">검색</button>
+<header>
+  <div class="w">
+    <div class="tr">
+      <div class="la">
+        <div class="lm">CB</div>
+        <div><div class="lt">COLA<span>BOT</span></div><div class="ls" id="sub"></div></div>
+      </div>
+      <div class="hr">
+        <span class="ub" id="upd" style="display:none"><span class="ud"></span><span id="upt"></span></span>
+        <button class="tb" id="lnb"></button>
+        <button class="tb sq" id="thb"></button>
+      </div>
+    </div>
+    <div class="sr">
+      <div class="sb">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--t4)" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input id="inp" type="text"/>
+        <button class="cl" id="clr">x</button>
+      </div>
+      <button class="go" id="gobtn"></button>
+    </div>
+    <div class="ps" id="pres"></div>
   </div>
+</header>
+<main>
+  <div class="st" id="stats" style="display:none"></div>
+  <div class="tl" id="toolbar" style="display:none">
+    <div class="tll">
+      <button class="fb on" id="fbtn"><span class="fd"></span><span id="flbl"></span></button>
+      <button class="xb" id="xbtn" style="display:none"></button>
+    </div>
+    <div class="sg" id="sgrp"></div>
+  </div>
+  <div class="ld" id="lding" style="display:none"><div class="sp"></div><p id="ltxt"></p></div>
+  <div class="err" id="errEl" style="display:none"></div>
+  <div class="rs" id="res"></div>
+  <div class="ep" id="xpan" style="display:none">
+    <div class="et"><span class="ed"></span><span id="xtit"></span></div>
+    <div class="el" id="xlist"></div>
+  </div>
+  <div class="fr">
+    <h3 id="frt"></h3>
+    <div class="ft" id="ftags"></div>
+    <p class="fdc" id="fdesc"></p>
+  </div>
+</main>
+<script>
+/* ═══ State ═══ */
+let mode="dark",lang="ko",query="코카콜라 제로 355ml 24캔",
+    filtered=[],excluded=[],total=0,isLoading=false,
+    showX=false,fOn=true,updTime=null,sort="price_asc",apiOk=true;
 
-  <div id="status"></div>
-  <div id="error"></div>
-  <div id="results"></div>
+/* ═══ i18n ═══ */
+const TX={
+  ko:{sub:"제로슈거 최저가 트래커",ph:"제로 콜라 검색",btn:"검색",
+    lo:"최저가",av:"평균가",hi:"최고가",ex:"필터 제외",
+    it:"개 상품",of:"전체",un:"건",uo:"건 중",
+    fOn:"스마트 필터 ON",fOff:"스마트 필터 OFF",
+    sx:"제외 항목 보기",hx:"제외 항목 숨기기",
+    sl:"낮은가격순",sh:"높은가격순",sm:"판매처순",
+    ld:"가격 수집 중",up:"업데이트",be:"BEST",
+    xt:"필터링으로 제외된 항목",ft:"스마트 필터 규칙",
+    fd:"누구나 동일하게 적용받을 수 없는 조건부 할인 가격을 자동으로 제외합니다.",
+    fg:["첫구매/신규가입 할인","카드사 조건부 할인","앱전용/페이 한정","묶음/증정 상품","해외직구/병행수입","비정상 가격 감지"],
+    w:"원",ab:"비정상 가격",z0:"가격 0원",
+    ps:[{l:"코카콜라 제로 355ml",q:"코카콜라 제로 355ml 24캔"},{l:"펩시 제로 355ml",q:"펩시 제로 355ml 24캔"},{l:"칠성사이다 제로",q:"칠성사이다 제로 355ml 24캔"},{l:"제로 콜라 1.5L",q:"코카콜라 제로 1.5L 12개"},{l:"제로 콜라 500ml",q:"코카콜라 제로 500ml 24입"}],
+    err:"API 연결에 실패했습니다.",errSub:"Vercel 환경변수에 <b>NAVER_CLIENT_ID</b>와 <b>NAVER_CLIENT_SECRET</b>이 설정되어 있는지 확인해주세요."},
+  en:{sub:"zero sugar price tracker",ph:"Search zero cola",btn:"Search",
+    lo:"Lowest",av:"Average",hi:"Highest",ex:"Filtered",
+    it:" products",of:"of",un:"",uo:" total",
+    fOn:"Smart Filter ON",fOff:"Smart Filter OFF",
+    sx:"Show excluded",hx:"Hide excluded",
+    sl:"Price low",sh:"Price high",sm:"Store",
+    ld:"Fetching prices",up:"updated",be:"BEST",
+    xt:"Excluded by filter",ft:"Smart Filter Rules",
+    fd:"Automatically excludes conditional discounts unavailable to all buyers.",
+    fg:["First purchase deals","Card-specific discounts","App / Pay only","Bundle / Freebie","Overseas / Import","Abnormal pricing"],
+    w:"KRW",ab:"Abnormal price",z0:"Price is 0",
+    ps:[{l:"Coke Zero 355ml",q:"코카콜라 제로 355ml 24캔"},{l:"Pepsi Zero 355ml",q:"펩시 제로 355ml 24캔"},{l:"Chilsung Zero",q:"칠성사이다 제로 355ml 24캔"},{l:"Coke Zero 1.5L",q:"코카콜라 제로 1.5L 12개"},{l:"Coke Zero 500ml",q:"코카콜라 제로 500ml 24입"}],
+    err:"API connection failed.",errSub:"Check that <b>NAVER_CLIENT_ID</b> and <b>NAVER_CLIENT_SECRET</b> are set in your Vercel environment variables."}
+};
 
-  <script>
-    async function doSearch() {
-      const q = document.getElementById('query').value.trim();
-      if (!q) return;
-      const status = document.getElementById('status');
-      const errorEl = document.getElementById('error');
-      const results = document.getElementById('results');
+/* ═══ Filter ═══ */
+const XKW=["첫구매","첫 구매","신규가입","신규 가입","첫주문","첫 주문","웰컴딜","welcome","첫방문","카드할인","카드 할인","카드결제","카드 결제","카드사","삼성카드","현대카드","신한카드","KB카드","국민카드","롯데카드","우리카드","하나카드","BC카드","NH카드","농협카드","체크카드","신용카드","카드즉시","쿠폰적용","쿠폰 적용","쿠폰가","할인쿠폰","다운로드쿠폰","적립금","포인트적용","포인트 적용","캐시적용","앱전용","앱 전용","앱에서만","앱설치","앱 설치","app전용","APP전용","멤버십","프리미엄회원","유료회원","구독자전용","N페이","네이버페이","토스","카카오페이","증정","사은품","덤증정","1+1","2+1","해외직구","직구","병행수입","해외배송","렌탈","렌트","대여","샘플","미니","50ml","150ml","200ml","250ml"];
+const PB={"355ml 24":{n:8000,x:30000},"190ml 30":{n:6000,x:25000},"1.5L 12":{n:12000,x:35000},"500ml 24":{n:12000,x:35000}};
+function bnd(t){for(const[k,b]of Object.entries(PB)){if(t.includes(k.split(" ")[0])&&t.includes(k.split(" ")[1]))return b;}return{n:3000,x:50000};}
+function strip(h){return h.replace(/<\/?b>/g,"");}
+function filt(item,tx){
+  const t=strip(item.title).toLowerCase(),p=parseInt(item.lprice),b=bnd(t);
+  if(p<b.n||p>b.x)return{ok:false,why:tx.ab};
+  if(p===0)return{ok:false,why:tx.z0};
+  for(const kw of XKW){if(t.includes(kw.toLowerCase()))return{ok:false,why:kw};}
+  return{ok:true,why:null};
+}
 
-      status.textContent = '검색 중...';
-      errorEl.style.display = 'none';
-      results.innerHTML = '';
+/* ═══ Sparkline ═══ */
+function spark(data,color){
+  if(!data||data.length<2)return"";
+  const w=58,h=16,mn=Math.min(...data),mx=Math.max(...data),r=mx-mn||1;
+  const pts=data.map((v,i)=>((i/(data.length-1))*w)+","+(h-((v-mn)/r)*(h-3)-1.5)).join(" ");
+  return'<svg width="'+w+'" height="'+h+'" style="display:block"><polyline fill="none" stroke="'+color+'" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" points="'+pts+'"/></svg>';
+}
 
-      try {
-        const res = await fetch(`/api/search?q=${encodeURIComponent(q)}&n=40`);
-        if (!res.ok) {
-          const err = await res.json().catch(() => ({}));
-          throw new Error(err.message || `HTTP ${res.status}`);
-        }
-        const data = await res.json();
-        const items = (data.items || []).filter(it => it.lprice > 0);
-        items.sort((a, b) => Number(a.lprice) - Number(b.lprice));
-        status.textContent = `${items.length}개 결과 (가격 오름차순)`;
-        if (items.length === 0) {
-          results.innerHTML = '<p style="text-align:center;color:#999;padding:32px">결과가 없습니다.</p>';
-          return;
-        }
-        results.innerHTML = items.map(it => `
-          <div class="card">
-            <img src="${it.image}" alt="" loading="lazy" onerror="this.style.display='none'">
-            <div class="card-body">
-              <div class="card-title">${it.title.replace(/<[^>]+>/g, '')}</div>
-              <div class="card-price">${Number(it.lprice).toLocaleString()}원</div>
-              <div class="card-mall">${it.mallName}</div>
-              <a class="card-link" href="${it.link}" target="_blank" rel="noopener">구매하기</a>
-            </div>
-          </div>
-        `).join('');
-      } catch (e) {
-        status.textContent = '';
-        errorEl.style.display = 'block';
-        errorEl.innerHTML = `
-          <strong>⚠️ API 연결 실패:</strong> ${e.message}<br>
-          <small style="margin-top:6px;display:block">
-            Vercel 환경변수 <code>NAVER_CLIENT_ID</code>, <code>NAVER_CLIENT_SECRET</code>가 설정되어 있는지 확인하세요.
-          </small>
-        `;
-      }
-    }
+const $=id=>document.getElementById(id);
 
-    // 페이지 로드 시 자동 검색
-    doSearch();
-  </script>
+/* ═══ API Call ═══ */
+async function fetchPrices(q){
+  const url="/api/search?q="+encodeURIComponent(q)+"&n=40";
+  const res=await fetch(url);
+  if(!res.ok){
+    const err=await res.json().catch(()=>({error:res.statusText}));
+    throw new Error(err.error||err.detail||"HTTP "+res.status);
+  }
+  const data=await res.json();
+  return data.items||[];
+}
+
+/* ═══ Search ═══ */
+async function doSearch(q){
+  if(!q||!q.trim())return;
+  query=q;isLoading=true;apiOk=true;
+  render();
+
+  let raw=[];
+  try{
+    raw=await fetchPrices(q);
+  }catch(e){
+    console.error("API error:",e);
+    apiOk=false;isLoading=false;
+    filtered=[];excluded=[];total=0;
+    render();
+    return;
+  }
+
+  const tx=TX[lang],pass=[],fail=[];
+  for(const item of raw){
+    const r=filt(item,tx);
+    pass.push||fail.push;
+    const obj={
+      title:item.title,name:strip(item.title),
+      price:parseInt(item.lprice),why:r.why,
+      link:item.link||"#",
+      mallName:item.mallName||"",
+      brand:item.brand||"",
+      cat:item.category3||item.category2||"",
+      pid:item.productId||String(Math.random()),
+      image:item.image||"",
+      hist:[]
+    };
+    if(r.ok)pass.push(obj);else fail.push(obj);
+  }
+  pass.sort((a,b)=>a.price-b.price);
+  filtered=pass;excluded=fail;total=raw.length;
+  updTime=new Date();isLoading=false;
+  render();
+}
+
+/* ═══ Render ═══ */
+function render(){
+  const tx=TX[lang];
+  document.body.classList.toggle("light",mode==="light");
+
+  $("sub").textContent=tx.sub;
+  $("lnb").textContent=lang==="ko"?"EN":"KR";
+  $("thb").innerHTML=mode==="dark"
+    ?'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--t2)" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>'
+    :'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--t2)" stroke-width="2" stroke-linecap="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
+
+  $("inp").placeholder=tx.ph;
+  $("inp").value=query;
+  $("clr").style.display=query?"block":"none";
+  $("gobtn").textContent=isLoading?"...":tx.btn;
+  $("gobtn").disabled=isLoading;
+
+  if(updTime){
+    $("upd").style.display="flex";
+    $("upt").textContent=updTime.toLocaleTimeString("ko-KR",{hour:"2-digit",minute:"2-digit"})+" "+tx.up;
+  }
+
+  $("pres").innerHTML=tx.ps.map(p=>'<button class="pb'+(query===p.q?" ac":"")+'" data-q="'+p.q+'">'+p.l+"</button>").join("");
+
+  $("lding").style.display=isLoading?"block":"none";
+  $("ltxt").textContent=tx.ld;
+
+  // Error state
+  if(!apiOk&&!isLoading){
+    $("errEl").style.display="block";
+    $("errEl").innerHTML=tx.err+"<br><br>"+tx.errSub;
+    $("stats").style.display="none";$("toolbar").style.display="none";$("res").innerHTML="";$("xpan").style.display="none";
+    return;
+  }
+  $("errEl").style.display="none";
+
+  if(isLoading){$("stats").style.display="none";$("toolbar").style.display="none";$("res").innerHTML="";$("xpan").style.display="none";return;}
+
+  const list=fOn?[...filtered]:[...filtered,...excluded];
+  const sorted=[...list].sort((a,b)=>sort==="price_asc"?a.price-b.price:sort==="price_desc"?b.price-a.price:a.mallName.localeCompare(b.mallName));
+  const lo=sorted[0]?.price,hi=sorted.length?sorted[sorted.length-1].price:undefined;
+  const avg=sorted.length?Math.round(sorted.reduce((s,r)=>s+r.price,0)/sorted.length):0;
+  const fmt=n=>n!=null?n.toLocaleString()+tx.w:"-";
+
+  if(sorted.length){
+    $("stats").style.display="grid";
+    $("stats").innerHTML=[
+      {l:tx.lo,v:fmt(lo),c:"var(--grn)",s:sorted[0]?.mallName||""},
+      {l:tx.av,v:fmt(avg),c:"var(--ylw)",s:sorted.length+tx.it},
+      {l:tx.hi,v:fmt(hi),c:"var(--t3)",s:sorted.length?sorted[sorted.length-1].mallName:""},
+      {l:tx.ex,v:excluded.length+tx.un,c:"var(--pur)",s:tx.of+" "+total+tx.uo}
+    ].map(x=>'<div class="sc"><div class="sl">'+x.l+'</div><div class="sv" style="color:'+x.c+'">'+x.v+'</div><div class="ss">'+x.s+"</div></div>").join("");
+  }else $("stats").style.display="none";
+
+  $("toolbar").style.display="flex";
+  $("fbtn").className="fb "+(fOn?"on":"off");
+  $("flbl").textContent=fOn?tx.fOn:tx.fOff;
+  if(excluded.length){$("xbtn").style.display="inline-block";$("xbtn").className="xb"+(showX?" ac":"");$("xbtn").textContent=(showX?tx.hx:tx.sx)+" ("+excluded.length+")";}
+  else $("xbtn").style.display="none";
+
+  $("sgrp").innerHTML=[{k:"price_asc",l:tx.sl},{k:"price_desc",l:tx.sh},{k:"mall",l:tx.sm}].map(s=>'<button class="so'+(sort===s.k?" ac":"")+'" data-s="'+s.k+'">'+s.l+"</button>").join("");
+
+  $("res").innerHTML=sorted.map((item,i)=>{
+    const best=i===0&&sort==="price_asc"&&fOn;
+    const diff=avg-item.price;
+    const rc=best?"var(--grn)":i<3?"var(--ylw)":"var(--t5)";
+    const ps=best?"16px":"13px",pc=best?"var(--grn)":"var(--t0)";
+    let bd='<span class="bd bm">'+item.mallName+"</span>";
+    if(best)bd+='<span class="bd bb">'+tx.be+"</span>";
+    if(diff>1000&&!best)bd+='<span class="bd bs">-'+diff.toLocaleString()+"</span>";
+    return'<a class="rc'+(best?" bt":"")+'" href="'+item.link+'" target="_blank" rel="noopener noreferrer">'
+      +'<div class="rk" style="color:'+rc+'">'+String(i+1).padStart(2,"0")+"</div>"
+      +'<div class="inf"><div class="bg">'+bd+"</div>"
+      +'<div class="nm">'+item.name+"</div>"
+      +'<div class="mt">'+item.brand+(item.cat?" / "+item.cat:"")+"</div></div>"
+      +'<div class="pc"><div class="pr" style="font-size:'+ps+";color:"+pc+'">'+item.price.toLocaleString()+'<span class="u">'+tx.w+"</span></div>"
+      +spark(item.hist,best?"var(--grn)":"var(--t5)")
+      +"</div></a>";
+  }).join("");
+
+  if(showX&&excluded.length){
+    $("xpan").style.display="block";
+    $("xtit").textContent=tx.xt;
+    $("xlist").innerHTML=excluded.map(item=>'<div class="er"><div class="en">'+item.name+'</div><span class="ew">'+item.why+'</span><span class="ep2">'+item.price.toLocaleString()+tx.w+"</span></div>").join("");
+  }else $("xpan").style.display="none";
+
+  $("frt").textContent=tx.ft;
+  $("ftags").innerHTML=tx.fg.map(r=>'<span class="fg">'+r+"</span>").join("");
+  $("fdesc").textContent=tx.fd;
+}
+
+/* ═══ Events ═══ */
+$("lnb").onclick=()=>{lang=lang==="ko"?"en":"ko";doSearch(query);};
+$("thb").onclick=()=>{mode=mode==="dark"?"light":"dark";render();};
+$("gobtn").onclick=()=>doSearch($("inp").value);
+$("inp").addEventListener("keydown",e=>{if(e.key==="Enter")doSearch($("inp").value);});
+$("inp").addEventListener("input",e=>{query=e.target.value;$("clr").style.display=query?"block":"none";});
+$("clr").onclick=()=>{query="";$("inp").value="";$("inp").focus();$("clr").style.display="none";};
+$("fbtn").onclick=()=>{fOn=!fOn;render();};
+$("xbtn").onclick=()=>{showX=!showX;render();};
+document.addEventListener("click",e=>{
+  if(e.target.classList.contains("pb")){doSearch(e.target.dataset.q);}
+  if(e.target.classList.contains("so")){sort=e.target.dataset.s;render();}
+});
+
+/* ═══ Init ═══ */
+render();
+doSearch(query);
+</script>
 </body>
 </html>
