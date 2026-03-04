@@ -144,7 +144,7 @@ main{max-width:800px;margin:0 auto;padding:16px 20px 80px}
   </div>
 </header>
 <main>
-  <div class="st" id="stats" style="display:none"></div>
+  <a id="cpbanner" href="https://link.coupang.com/a/dXMDGL" target="_blank" rel="noopener noreferrer" style="display:block;margin:0 0 14px;padding:13px 18px;background:linear-gradient(135deg,#e63535,#c41f1f);border-radius:10px;text-decoration:none;color:#fff;font-family:'DM Sans',sans-serif;position:relative;overflow:hidden"><div style="position:absolute;top:0;right:0;width:40%;height:100%;background:rgba(255,255,255,0.06);clip-path:polygon(25% 0%,100% 0%,100% 100%,0% 100%)"></div><div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;position:relative"><div><div id="bn_label" style="font-size:9px;font-weight:600;letter-spacing:2px;text-transform:uppercase;opacity:0.75;margin-bottom:3px"></div><div id="bn_title" style="font-size:15px;font-weight:800;letter-spacing:-0.5px;line-height:1.3"></div><div id="bn_sub" style="font-size:10px;margin-top:4px;opacity:0.85"></div></div><div id="bn_btn" style="background:#fff;color:#e63535;font-size:11px;font-weight:800;padding:10px 16px;border-radius:8px;white-space:nowrap;flex-shrink:0"></div></div></a>     <div class="st" id="stats" style="display:none"></div>
   <div class="tl" id="toolbar" style="display:none">
     <div class="tll">
       <button class="fb on" id="fbtn"><span class="fd"></span><span id="flbl"></span></button>
@@ -281,7 +281,7 @@ function render(){
   const tx=TX[lang];
   document.body.classList.toggle("light",mode==="light");
 
-  $("sub").textContent=tx.sub;
+  $("sub").textContent=tx.sub;if($("bn_label")){$("bn_label").textContent=lang==="ko"?"\ucfe0\ud321 \ud30c\ud2b8\ub108\uc2a4 \ucd94\ucc9c":"Coupang Partners";$("bn_title").textContent=lang==="ko"?"\ucf54\uce74\ucf5c\ub77c \uc81c\ub85c \ucf5c\ub77c 24\uce94 \u2014 \ub85c\ucf13\ubc30\uc1a1":"Coca-Cola Zero 24-Pack";$("bn_sub").innerHTML=lang==="ko"?"&#127870; \uc9c0\uae08 \uc8fc\ubb38\ud558\uba74 \ub0b4\uc77c \ub3c4\ucc29 &middot; \ucfe0\ud321\uc5d0\uc11c \ucd5c\uc800\uac00 \ud655\uc778":"&#127870; Order now &middot; Best price on Coupang";$("bn_btn").textContent=lang==="ko"?"\ucfe0\ud321\uc5d0\uc11c \ubc14\ub85c \uc8fc\ubb38 \u2192":"Order on Coupang \u2192";}
   $("lnb").textContent=lang==="ko"?"EN":"KR";
   $("thb").innerHTML=mode==="dark"
     ?'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--t2)" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>'
